@@ -1,0 +1,8 @@
+import { donations, users } from '../data/store.js';
+const hav=(a,b)=>{const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lng-a.lng)*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));};
+export function scoreDonation(d){
+ const candidates=users.filter(u=>['NGO','VOLUNTEER'].includes(u.role)&&u.availability);
+ const hours=Math.max(0,(new Date(d.expiryTime)-Date.now())/3600000);
+ return candidates.map(u=>{const distance=hav(d.coordinates,u.coordinates);const capacity=u.capacity||Math.max(d.quantity,10);const capacityFit=Math.min(100,(capacity/d.quantity)*100);const urgency=Math.max(0,Math.min(100,100-hours/24*100));const distanceScore=Math.max(0,100-distance/8*100);const availability=100;const compatibility=u.foodPreferences.includes(d.foodType)?100:45;const final=Math.round(capacityFit*.30+urgency*.25+distanceScore*.20+availability*.15+compatibility*.10);return {recipient:u,score:final,breakdown:{capacityFit:Math.round(capacityFit),expiryUrgency:Math.round(urgency),distanceScore:Math.round(distanceScore),availabilityScore:availability,foodCompatibility:compatibility},distance:Math.round(distance*10)/10,reason:[capacityFit>=100?`Can accept all ${d.quantity} meals`:`Capacity is ${Math.round(capacity)} for ${d.quantity} meals`,`${Math.round(distance*10)/10} km away`,'Available now',compatibility===100?`Accepts ${d.foodType}`:'Food compatibility is partial',u.verified?'Verified organization':'Partner not verified']};}).sort((a,b)=>b.score-a.score);
+}
+export function findDonation(id){return donations.find(d=>d._id===id||d.code===id)}
