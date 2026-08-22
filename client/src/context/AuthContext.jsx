@@ -1,2 +1,24 @@
-import {createContext,useContext,useState} from 'react';import {api} from '../lib/api';
-const C=createContext(null);export function AuthProvider({children}){const [user,setUser]=useState(()=>{try{return JSON.parse(localStorage.getItem('foodresq_user'))}catch{return null}});const login=async(email,password)=>{const {data}=await api.post('/auth/login',{email,password});localStorage.setItem('foodresq_token',data.token);localStorage.setItem('foodresq_user',JSON.stringify(data.user));setUser(data.user)};const logout=()=>{localStorage.clear();setUser(null)};return <C.Provider value={{user,login,logout}}>{children}</C.Provider>}export const useAuth=()=>useContext(C);
+import { createContext, useContext, useState } from "react";
+import { api } from "../lib/api";
+const C = createContext(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("foodresq_user"));
+    } catch {
+      return null;
+    }
+  });
+  const login = async (email, password) => {
+    const { data } = await api.post("/auth/login", { email, password });
+    localStorage.setItem("foodresq_token", data.token);
+    localStorage.setItem("foodresq_user", JSON.stringify(data.user));
+    setUser(data.user);
+  };
+  const logout = () => {
+    localStorage.clear();
+    setUser(null);
+  };
+  return <C.Provider value={{ user, login, logout }}>{children}</C.Provider>;
+}
+export const useAuth = () => useContext(C);

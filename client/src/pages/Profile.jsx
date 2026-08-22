@@ -1,11 +1,230 @@
-import {MapPin,Mail,ShieldCheck,Clock3,Users,Utensils,Navigation,CheckCircle2,UserRound} from 'lucide-react';
-import Layout from '../components/Layout';import Topbar from '../components/Topbar';import {useAuth} from '../context/AuthContext';
-export default function Profile(){const {user}=useAuth();const initials=(user?.name||'FC').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();const prefs=user?.foodPreferences||[];return <Layout><Topbar title="My profile"/><div className="mx-auto max-w-6xl space-y-6 p-5 lg:p-8"><section className="profile-hero overflow-hidden rounded-[28px] border border-white/[.07]"><div className="profile-glow"/><div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8"><span className="profile-avatar">{initials}</span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="text-3xl font-black tracking-tight">{user?.name}</h2>{user?.verified&&<span className="badge-green"><ShieldCheck size={12}/>Verified partner</span>}</div><p className="mt-2 text-sm text-slate-400">{user?.email}</p><div className="mt-4 flex flex-wrap gap-2"><span className="badge-muted">{user?.role}</span><span className="badge-muted"><MapPin size={12}/>{user?.location?.address||user?.location?.city||'Location not set'}</span><span className={`badge-muted ${user?.availability?'text-emerald-300':''}`}><span className={`h-1.5 w-1.5 rounded-full ${user?.availability?'bg-emerald-400':'bg-slate-600'}`}/>{user?.availability?'Available now':'Unavailable'}</span></div></div></div></section>
-<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><InfoCard icon={UserRound} label="Account type" value={user?.role||'—'} detail="Foodcane network role"/><InfoCard icon={Mail} label="Email" value={user?.email||'—'} detail="Verified login identity"/><InfoCard icon={MapPin} label="Service area" value={user?.location?.city||'Guwahati'} detail={user?.location?.address||'Primary location'}/><InfoCard icon={Clock3} label="Availability" value={user?.availability?'Active':'Offline'} detail="Recipient availability status"/></div>
-<div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr]"><section className="premium-card p-6"><SectionTitle title="Profile information"/><div className="mt-6 grid gap-4 sm:grid-cols-2"><Field label="Full name" value={user?.name}/><Field label="Email address" value={user?.email}/><Field label="Role" value={user?.role}/><Field label="Verification" value={user?.verified?'Verified partner':'Verification pending'}/><Field label="City" value={user?.location?.city}/><Field label="Address" value={user?.location?.address}/><Field label="Latitude" value={user?.coordinates?.lat}/><Field label="Longitude" value={user?.coordinates?.lng}/></div></section><section className="premium-card p-6"><SectionTitle title="Rescue capabilities"/><div className="mt-6 grid gap-3"><MiniStat icon={Users} label="Capacity" value={user?.capacity?`${user.capacity} meals`:'Flexible'} /><MiniStat icon={Navigation} label="Availability" value={user?.availability?'Ready for assignments':'Not accepting assignments'} /><MiniStat icon={ShieldCheck} label="Trust status" value={user?.verified?'Verified':'Unverified'} /></div><div className="mt-6 border-t border-white/[.07] pt-5"><p className="text-[10px] font-black uppercase tracking-[.2em] text-slate-600">Food preferences</p>{prefs.length?<div className="mt-3 flex flex-wrap gap-2">{prefs.map(p=><span key={p} className="badge-green"><CheckCircle2 size={11}/>{p}</span>)}</div>:<p className="mt-3 text-sm text-slate-500">No preferences configured.</p>}</div></section></div>
-<div className="premium-card p-6"><SectionTitle title="Account at a glance"/><div className="mt-5 grid gap-3 md:grid-cols-3"><AtGlance icon={Utensils} title="Food network" text="Connected to Foodcane's intelligent rescue allocation network."/><AtGlance icon={Navigation} title="Location ready" text="Your saved coordinates are used for distance-aware matching."/><AtGlance icon={ShieldCheck} title="Transparent matching" text="Recipient recommendations use capacity, urgency, distance and compatibility."/></div></div></div></Layout>}
-function InfoCard({icon:Icon,label,value,detail}){return <div className="stat-card"><span className="card-icon"><Icon size={17}/></span><p className="mt-4 text-[10px] font-black uppercase tracking-[.18em] text-slate-600">{label}</p><p className="mt-1 truncate text-lg font-black">{value}</p><p className="mt-1 truncate text-xs text-slate-500">{detail}</p></div>}
-function Field({label,value}){return <div className="rounded-2xl border border-white/[.06] bg-white/[.02] p-4"><p className="text-[9px] font-black uppercase tracking-[.18em] text-slate-600">{label}</p><p className="mt-2 break-words text-sm font-semibold text-slate-200">{value??'—'}</p></div>}
-function MiniStat({icon:Icon,label,value}){return <div className="flex items-center gap-3 rounded-2xl border border-white/[.06] bg-white/[.02] p-4"><span className="card-icon"><Icon size={16}/></span><div><p className="text-[9px] font-black uppercase tracking-widest text-slate-600">{label}</p><p className="mt-1 text-sm font-bold">{value}</p></div></div>}
-function SectionTitle({title}){return <div><p className="text-[9px] font-black uppercase tracking-[.22em] text-emerald-300/80">Account</p><h3 className="mt-1 text-xl font-black">{title}</h3></div>}
-function AtGlance({icon:Icon,title,text}){return <div className="rounded-2xl border border-white/[.06] bg-gradient-to-br from-white/[.045] to-white/[.015] p-5"><span className="card-icon"><Icon size={17}/></span><h4 className="mt-5 font-bold">{title}</h4><p className="mt-2 text-xs leading-5 text-slate-500">{text}</p></div>}
+import {
+  MapPin,
+  Mail,
+  ShieldCheck,
+  Clock3,
+  Users,
+  Utensils,
+  Navigation,
+  CheckCircle2,
+  UserRound,
+} from "lucide-react";
+import Layout from "../components/Layout";
+import Topbar from "../components/Topbar";
+import { useAuth } from "../context/AuthContext";
+export default function Profile() {
+  const { user } = useAuth();
+  const initials = (user?.name || "FC")
+    .split(" ")
+    .map((x) => x[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const prefs = user?.foodPreferences || [];
+  return (
+    <Layout>
+      <Topbar title="My profile" />
+      <div className="mx-auto max-w-6xl space-y-6 p-5 lg:p-8">
+        <section className="profile-hero overflow-hidden rounded-[28px] border border-white/[.07]">
+          <div className="profile-glow" />
+          <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
+            <span className="profile-avatar">{initials}</span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-3xl font-black tracking-tight">
+                  {user?.name}
+                </h2>
+                {user?.verified && (
+                  <span className="badge-green">
+                    <ShieldCheck size={12} />
+                    Verified partner
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-sm text-slate-400">{user?.email}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="badge-muted">{user?.role}</span>
+                <span className="badge-muted">
+                  <MapPin size={12} />
+                  {user?.location?.address ||
+                    user?.location?.city ||
+                    "Location not set"}
+                </span>
+                <span
+                  className={`badge-muted ${user?.availability ? "text-emerald-300" : ""}`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${user?.availability ? "bg-emerald-400" : "bg-slate-600"}`}
+                  />
+                  {user?.availability ? "Available now" : "Unavailable"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <InfoCard
+            icon={UserRound}
+            label="Account type"
+            value={user?.role || "Not set"}
+          />
+          <InfoCard
+            icon={Mail}
+            label="Email"
+            value={user?.email || "Not set"}
+          />
+          <InfoCard
+            icon={MapPin}
+            label="Service area"
+            value={user?.location?.city || "Guwahati"}
+          />
+          <InfoCard
+            icon={Clock3}
+            label="Availability"
+            value={user?.availability ? "Active" : "Offline"}
+          />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
+          <section className="premium-card p-6">
+            <SectionTitle title="Profile information" />
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <Field label="Full name" value={user?.name} />
+              <Field label="Email address" value={user?.email} />
+              <Field label="Role" value={user?.role} />
+              <Field
+                label="Verification"
+                value={
+                  user?.verified ? "Verified partner" : "Verification pending"
+                }
+              />
+              <Field label="City" value={user?.location?.city} />
+              <Field label="Address" value={user?.location?.address} />
+              <Field label="Latitude" value={user?.coordinates?.lat} />
+              <Field label="Longitude" value={user?.coordinates?.lng} />
+            </div>
+          </section>
+          <section className="premium-card p-6">
+            <SectionTitle title="Rescue capabilities" />
+            <div className="mt-6 grid gap-3">
+              <MiniStat
+                icon={Users}
+                label="Capacity"
+                value={user?.capacity ? `${user.capacity} meals` : "Flexible"}
+              />
+              <MiniStat
+                icon={Navigation}
+                label="Availability"
+                value={
+                  user?.availability
+                    ? "Ready for assignments"
+                    : "Not accepting assignments"
+                }
+              />
+              <MiniStat
+                icon={ShieldCheck}
+                label="Trust status"
+                value={user?.verified ? "Verified" : "Unverified"}
+              />
+            </div>
+            <div className="mt-6 border-t border-white/[.07] pt-5">
+              <p className="text-[10px] font-black uppercase tracking-[.2em] text-slate-600">
+                Food preferences
+              </p>
+              {prefs.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {prefs.map((p) => (
+                    <span key={p} className="badge-green">
+                      <CheckCircle2 size={11} />
+                      {p}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-500">
+                  No preferences configured.
+                </p>
+              )}
+            </div>
+          </section>
+        </div>
+        <div className="premium-card p-6">
+          <SectionTitle title="Account at a glance" />
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <AtGlance icon={Utensils} title="Food network" text="Connected" />
+            <AtGlance
+              icon={Navigation}
+              title="Location ready"
+              text="Coordinates saved"
+            />
+            <AtGlance
+              icon={ShieldCheck}
+              title="Transparent matching"
+              text="Enabled"
+            />
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+function InfoCard({ icon: Icon, label, value }) {
+  return (
+    <div className="stat-card">
+      <span className="card-icon">
+        <Icon size={17} />
+      </span>
+      <p className="mt-4 text-[10px] font-black uppercase tracking-[.18em] text-slate-600">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-lg font-black">{value}</p>
+    </div>
+  );
+}
+function Field({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-white/[.06] bg-white/[.02] p-4">
+      <p className="text-[9px] font-black uppercase tracking-[.18em] text-slate-600">
+        {label}
+      </p>
+      <p className="mt-2 break-words text-sm font-semibold text-slate-200">
+        {value ?? "Not set"}
+      </p>
+    </div>
+  );
+}
+function MiniStat({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-white/[.06] bg-white/[.02] p-4">
+      <span className="card-icon">
+        <Icon size={16} />
+      </span>
+      <div>
+        <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">
+          {label}
+        </p>
+        <p className="mt-1 text-sm font-bold">{value}</p>
+      </div>
+    </div>
+  );
+}
+function SectionTitle({ title }) {
+  return (
+    <div>
+      <p className="text-[9px] font-black uppercase tracking-[.22em] text-emerald-300/80">
+        Account
+      </p>
+      <h3 className="mt-1 text-xl font-black">{title}</h3>
+    </div>
+  );
+}
+function AtGlance({ icon: Icon, title, text }) {
+  return (
+    <div className="rounded-2xl border border-white/[.06] bg-gradient-to-br from-white/[.045] to-white/[.015] p-5">
+      <span className="card-icon">
+        <Icon size={17} />
+      </span>
+      <h4 className="mt-5 font-bold">{title}</h4>
+      <p className="mt-2 text-xs leading-5 text-slate-500">{text}</p>
+    </div>
+  );
+}
